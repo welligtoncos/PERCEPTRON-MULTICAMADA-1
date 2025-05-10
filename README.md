@@ -59,12 +59,7 @@ print(f"{a} / {b} = {calcular_operacao(a, b, 3)}")
 
 ## 📚 Referências
 
-1. Goodfellow, I., Bengio, Y., & Courville, A. (2016). Deep Learning. MIT Press.
-2. Keras Team. (2023). Keras: the Python deep learning API. https://keras.io/
-3. Abadi, M., et al. (2016). TensorFlow: Large-Scale Machine Learning on Heterogeneous Distributed Systems. arXiv preprint arXiv:1603.04467.
-4. O'Malley, T., et al. (2019). Keras Tuner. https://github.com/keras-team/keras-tuner
-5. Kingma, D. P., & Ba, J. (2014). Adam: A Method for Stochastic Optimization. arXiv preprint arXiv:1412.6980.
-6. Klambauer, G., Unterthiner, T., Mayr, A., & Hochreiter, S. (2017). Self-Normalizing Neural Networks. Advances in Neural Information Processing Systems, 30. 🧠 Calculadora Neural: Rede Neural para Operações Matemáticas
+ 
 
 ## 📋 Índice
 - [Sobre o Projeto](#-sobre-o-projeto)
@@ -83,7 +78,10 @@ print(f"{a} / {b} = {calcular_operacao(a, b, 3)}")
 
 ## 📋 Sobre o Projeto
 
-Este projeto implementa uma rede neural profunda capaz de aprender as quatro operações matemáticas básicas: adição, subtração, multiplicação e divisão. Utilizando técnicas avançadas de deep learning e otimização de hiperparâmetros, conseguimos criar um modelo capaz de realizar cálculos com diferentes níveis de precisão dependendo da operação.
+Este trabalho desenvolve um sistema baseado em redes neurais para modelar as quatro operações matemáticas básicas. Aplicamos otimização de hiperparâmetros via
+Keras Tuner, técnicas de regularização, e comparamos diferentes otimizadores para maximizar a precisão do modelo. Os resultados mostram que a rede neural conseguiu
+aproximar as operações com diferentes níveis de precisão, sendo mais eficaz emoperações simples como adição e subtração, e enfrentando maiores desafios em
+multiplicação e divisão. A análise dos padrões de erro oferece insights sobre como redes neurais processam relações matemáticas de diferentes complexidades.
 
 **Autores:**
 - Wellington Costa dos Santos - 2019101307
