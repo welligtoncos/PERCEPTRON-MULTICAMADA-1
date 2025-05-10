@@ -1,128 +1,101 @@
-# Rede Neural para Operações Matemáticas Básicas
+# 🧠 Calculadora Neural: Rede Neural para Operações Matemáticas
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/)
-[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.8%2B-orange)](https://www.tensorflow.org/)
-[![Keras Tuner](https://img.shields.io/badge/Keras%20Tuner-1.1.0-green)](https://keras.io/keras_tuner/)
+## 📋 Sobre o Projeto
 
-## 📚 Sobre o Projeto
+Este projeto implementa uma rede neural profunda capaz de aprender as quatro operações matemáticas básicas: adição, subtração, multiplicação e divisão. Utilizando técnicas avançadas de deep learning e otimização de hiperparâmetros, conseguimos criar um modelo capaz de realizar cálculos com diferentes níveis de precisão dependendo da operação.
 
-Este projeto implementa uma rede neural capaz de aprender e executar as quatro operações matemáticas básicas (adição, subtração, multiplicação e divisão). Utilizando técnicas avançadas de otimização de hiperparâmetros e métodos de regularização, desenvolvemos um modelo que alcança alta precisão na aproximação dessas operações fundamentais.
+**Autores:**
+- Wellington Costa dos Santos - 2019101307
+- Janderson Sebastião do Carmo Rocha - 2020101157
+- Bruno Thiago Ferreira Lins - 2017102980
 
-O trabalho foi desenvolvido como parte da disciplina "Redes Neurais 2" (2025) e explora como sistemas de IA podem aprender conceitos matemáticos a partir de exemplos.
+**Data:** 10/05/2025  
+**Disciplina:** Redes Neurais 2  
+**Professor:** Sérgio Assunção Monteiro, D.Sc.
 
-## 🔑 Principais Insights
+## 🔍 Resumo do Modelo
 
-### 1. Hierarquia de Complexidade Matemática
-Descobrimos um interessante paralelo entre a dificuldade que humanos e redes neurais enfrentam ao aprender operações matemáticas:
+| Característica | Valor |
+|----------------|-------|
+| Camadas | 9 |
+| Parâmetros Treináveis | 9,377 |
+| Otimizador | Adam |
+| Função de Perda | MSE |
 
-| Operação     | Erro Médio | MAE     | Acertos |
-|--------------|------------|---------|---------|
-| Adição       | 0.82%      | 0.0142  | 5/5     |
-| Subtração    | 0.78%      | 0.0138  | 5/5     |
-| Multiplicação| 2.13%      | 0.0387  | 4/5     |
-| Divisão      | 3.45%      | 0.0612  | 3/5     |
+### Insights Técnicos
+- **Funções de Ativação:** ReLU, SELU
+- **Total de Camadas Densas:** 4
+- **Métrica de Avaliação:** MAE (Erro Absoluto Médio)
+- **Arquitetura:** MLP com entrada de 2 valores + codificação one-hot da operação
+- **Funções não utilizadas:** tanh, leaky_relu
 
-Assim como para crianças, adição e subtração foram consistentemente mais fáceis para a rede aprender do que multiplicação e divisão.
+## 📊 Desempenho por Operação
 
-### 2. Funções de Ativação Complementares
-A melhor configuração encontrada combinou diferentes funções de ativação:
-- **Primeira camada**: Tanh (64 neurônios)
-- **Segunda camada**: ReLU (96 neurônios)
-- **Terceira camada**: LeakyReLU (64 neurônios)
+### Erro Médio por Operação (%)
+- **Adição:** 5.9%
+- **Subtração:** 41.0%
+- **Multiplicação:** 31.4%
+- **Divisão:** 155.6%
 
-Esta combinação heterogênea superou significativamente arquiteturas que usam uma única função de ativação em todas as camadas.
+### Acertos por Operação (≤ 5% erro)
+- **Adição:** 4/5 testes (80%)
+- **Subtração:** 1/5 testes (20%)
+- **Multiplicação:** 2/5 testes (40%)
+- **Divisão:** 0/5 testes (0%)
 
-### 3. Padrões de Erro Reveladores
-Os mapas de calor de erro revelaram padrões sistemáticos que refletem propriedades intrínsecas das operações matemáticas:
-- **Adição/Subtração**: Erro uniformemente baixo em todo o domínio
-- **Multiplicação**: Erro aumenta em forma de "X" quando ambos os operandos têm grande magnitude
-- **Divisão**: Erro concentrado ao longo do eixo horizontal próximo a zero (divisores pequenos)
+## 💻 Implementação
 
-### 4. Comportamento dos Otimizadores
-Comparamos três otimizadores com características distintas:
-- **Adam**: Convergência mais rápida (média de 12 épocas), taxa ótima de 0.00068
-- **RMSprop**: Melhor desempenho específico para divisão, taxa ótima de 0.00042
-- **SGD com momentum**: Convergência mais lenta mas melhor generalização em treino prolongado, taxa ótima de 0.00376
+O projeto utiliza TensorFlow e Keras para implementação da rede neural, juntamente com o Keras Tuner para otimização de hiperparâmetros.
 
-## 🧰 Tecnologias Utilizadas
+### Principais Componentes:
+1. **Geração de Dados:** Dataset sintético com números aleatórios para as quatro operações
+2. **Pré-processamento:** Normalização dos valores e codificação one-hot das operações
+3. **Arquitetura do Modelo:** Rede neural profunda com camadas densas e regularização
+4. **Otimização de Hiperparâmetros:** Utilizando Hyperband para encontrar a melhor configuração
+5. **Avaliação:** Testes com exemplos reais e análise detalhada de erros
 
-- **TensorFlow/Keras**: Framework principal para construção e treinamento do modelo
-- **Keras Tuner**: Otimização automática de hiperparâmetros via algoritmo Hyperband
-- **NumPy**: Processamento numérico e geração do dataset sintético
-- **Matplotlib**: Visualização de resultados e análise de erros
-- **Scikit-learn**: Pré-processamento de dados (normalização e codificação)
+### Melhores Hiperparâmetros Encontrados:
+- **Número de camadas:** 3
+- **Otimizador:** Adam
+- **Taxa de aprendizado:** 0.001815
+- **Camada 1:** 128 neurônios, ReLU, L2=0.0001, Dropout=0.3
+- **Camada 2:** 32 neurônios, SELU, L2=0.001, sem Dropout
+- **Camada 3:** 128 neurônios, SELU, L2=0.001, Dropout=0.1
 
-## 📋 Características Principais
+## 📈 Resultados e Conclusões
 
-### Geração de Dataset
-- 4.000 exemplos sintéticos (1.000 por operação)
-- Operandos: números aleatórios entre -10 e 10
-- Tratamento especial para evitar divisão por zero
+A rede neural conseguiu aprender com maior facilidade operações de adição, enquanto teve dificuldades significativas com divisão. Os resultados mostram que:
 
-### Arquitetura Neural
-- **Entrada**: 6 neurônios (2 operandos + 4 bits de codificação da operação)
-- **Camadas ocultas**: 2-4 camadas com 32-128 neurônios (otimizável)
-- **Regularização**: Dropout (10%-40%) e L2 (0.0001-0.001)
-- **Saída**: 1 neurônio (resultado da operação)
+- O modelo é excelente para adição (80% de acertos com erro ≤ 5%)
+- Razoável para multiplicação (40% de acertos com erro ≤ 5%)
+- Limitado para subtração (20% de acertos com erro ≤ 5%)
+- Inadequado para divisão (0% de acertos com erro ≤ 5%)
 
-### Otimização de Hiperparâmetros
-- **Método**: Keras Tuner com algoritmo Hyperband
-- **Parâmetros otimizados**: número de camadas, neurônios por camada, funções de ativação, regularização, otimizador, taxa de aprendizado
-- **Resultado**: 40% de redução no erro comparado a configurações padrão
+O erro médio absoluto (MAE) final no conjunto de teste foi de aproximadamente 0.0205, indicando um bom desempenho geral, mas com variações significativas entre as operações.
 
-### Callbacks Implementados
-- **Early Stopping**: Interrompe treinamento quando não há melhoria
-- **Model Checkpoint**: Salva apenas o melhor modelo
-- **TensorBoard**: Logging para visualização do treinamento
-- **Monitoramento em tempo real**: Exibe MAE durante o treinamento
+## 🔮 Próximos Passos
+
+Com base nos resultados obtidos, sugerimos as seguintes melhorias:
+
+1. **Modelos Especializados:** Treinar redes separadas para cada operação
+2. **Ampliação do Dataset:** Aumentar a quantidade e diversidade dos dados de treinamento
+3. **Arquiteturas Alternativas:** Testar RNNs ou Transformers para capturar padrões sequenciais
+4. **Processamento Adicional:** Melhorar a normalização de dados para operações de divisão
+5. **Técnicas de Ensemble:** Combinar múltiplos modelos para melhorar a precisão geral
 
 ## 🚀 Como Executar
 
-### Pré-requisitos
- 
+```bash
+# Instalação das dependências
+pip install tensorflow numpy matplotlib sklearn keras-tuner
 
-## 📊 Resultados e Visualizações
+# Executar o código principal
+final.py
+```
 
-### Distribuição de Erros
-O modelo alcançou erro médio de 0.127 no conjunto de teste, com distribuição concentrada próxima de zero.
+## 📚 Referências
 
-### Mapas de Calor de Erro
-Geramos mapas de calor que mostram o erro absoluto para diferentes combinações de operandos em cada operação.
-
-### Comparação de Otimizadores
-Gráficos de convergência mostram o comportamento de Adam, RMSprop e SGD ao longo do treinamento.
-
-## 🔍 Aplicações Potenciais
-
-1. **Ferramentas Educacionais**: Sistemas de tutoria adaptativa que identificam padrões de dificuldades similares em estudantes
-
-2. **Compreensão de IA**: Insights sobre como modelos de aprendizado profundo processam conceitos matemáticos abstratos
-
-3. **Sistemas Híbridos**: Base para abordagens que combinam raciocínio simbólico e conexionista em IA
-
-## 🔮 Trabalhos Futuros
-
-- Expandir o sistema para operações matemáticas mais complexas (potenciação, raízes, funções trigonométricas)
-- Aumentar o range de valores de treinamento para melhorar generalização
-- Implementar uma interface visual para demonstração educacional
-- Explorar arquiteturas específicas para cada operação matemática
-
-## 📄 Licença
-
-Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE.md](LICENSE.md) para detalhes.
-
-## 👥 Autores
-
-- **Welligton costa dos santos** - *Desenvolvimento e Pesquisa* - [Seu GitHub](https://github.com/seu-usuario)
-- **Janderson Sebastião do Carmo Rocha - 2020101157** 
-- **Bruno Thiago Ferreira Lins - 2017102980**
-
-## 🙏 Agradecimentos
-
-- Prof. Sérgio Assunção Monteiro, D.Sc. pela orientação no desenvolvimento do projeto
-- Comunidade TensorFlow pelos recursos e documentação
-- Autores do Keras Tuner pela ferramenta de otimização de hiperparâmetros
-
----
-
-*"A matemática é a linguagem com a qual Deus escreveu o universo." — Galileu Galilei*
+- Goodfellow, I., Bengio, Y., & Courville, A. (2016). Deep Learning. MIT Press.
+- TensorFlow Documentation: https://www.tensorflow.org/
+- Keras Tuner: https://keras.io/keras_tuner/
+- Chollet, F. (2021). Deep Learning with Python. Manning Publications.
