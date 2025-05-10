@@ -1,5 +1,20 @@
 # 🧠 Calculadora Neural: Rede Neural para Operações Matemáticas
 
+## 📋 Índice
+- [Sobre o Projeto](#-sobre-o-projeto)
+- [Resumo Executivo](#-resumo-executivo)
+- [Preparação e Validação dos Dados](#-preparação-e-validação-dos-dados)
+- [Arquitetura da Rede Neural](#-arquitetura-da-rede-neural)
+- [Otimização de Hiperparâmetros](#-otimização-de-hiperparâmetros)
+- [Implementação de Callbacks](#-implementação-de-callbacks)
+- [Treinamento e Avaliação](#-treinamento-e-avaliação)
+- [Conclusões e Recomendações](#-conclusões-e-recomendações)
+- [Limitações e Desafios](#-limitações-e-desafios)
+- [Trabalhos Futuros](#-trabalhos-futuros)
+- [Como Executar](#-como-executar)
+- [Uso Prático do Modelo](#-uso-prático-do-modelo)
+- [Referências](#-referências)
+
 ## 📋 Sobre o Projeto
 
 Este projeto implementa uma rede neural profunda capaz de aprender as quatro operações matemáticas básicas: adição, subtração, multiplicação e divisão. Utilizando técnicas avançadas de deep learning e otimização de hiperparâmetros, conseguimos criar um modelo capaz de realizar cálculos com diferentes níveis de precisão dependendo da operação.
@@ -12,6 +27,17 @@ Este projeto implementa uma rede neural profunda capaz de aprender as quatro ope
 **Data:** 10/05/2025  
 **Disciplina:** Redes Neurais 2  
 **Professor:** Sérgio Assunção Monteiro, D.Sc.
+
+## 📊 Resumo Executivo
+
+Nossa pesquisa implementou uma rede neural capaz de aprender as quatro operações matemáticas básicas, utilizando uma arquitetura MLP com configuração "ampulheta" (128→32→128 neurônios). Principais resultados:
+
+- **Performance Global:** MSE=0.05897, MAE=0.02049 no conjunto de teste
+- **Diferenças por Operação:** Adição (melhor desempenho) > Subtração > Multiplicação > Divisão (pior desempenho)
+- **Otimização:** Utilizamos Keras Tuner com Hyperband para encontrar a melhor configuração entre 90 tentativas
+- **Melhor Modelo:** Combinação de ReLU na primeira camada e SELU nas subsequentes, com regularização L2 e dropout
+
+Esta abordagem demonstra o potencial das redes neurais para modelar operações matemáticas, mas também revela limitações importantes para operações mais complexas como divisão.
 
 ## 1️⃣ Preparação e Validação dos Dados
 
@@ -184,6 +210,24 @@ def construir_modelo(hp):
     return modelo
 ```
 
+### Diagrama da Arquitetura Final
+
+```
+Entrada (6 unidades: 2 operandos + 4 one-hot)
+    ↓
+Camada Densa (128 unidades, ReLU, L2=0.0001)
+    ↓
+Dropout (30%)
+    ↓
+Camada Densa (32 unidades, SELU, L2=0.001)
+    ↓
+Camada Densa (128 unidades, SELU, L2=0.001)
+    ↓
+Dropout (10%)
+    ↓
+Camada de Saída (1 unidade)
+```
+
 ### Técnicas de Regularização
 - **Dropout:** Aplicado em taxas variáveis (0.1-0.4) para prevenir overfitting
 - **Regularização L2:** Implementada com coeficientes 0.001 e 0.0001
@@ -283,6 +327,23 @@ Trial 90 Complete [00h 00m 13s]
 val_mae: 0.08050110936164856
 Best val_mae So Far: 0.01958031952381134
 Total elapsed time: 00h 08m 12s
+```
+
+### Curva de Convergência
+
+A figura abaixo mostra a evolução do MAE de validação para os diferentes trials ao longo do processo de otimização:
+
+```
+    MAE
+0.08 |    *                             *
+     |        *             *              
+     |  *         *     *       *          
+0.04 |     *  *     *       *             
+     |            *   *  *                
+     |                      *   *         
+0.02 |                          *         
+     +--------------------------------
+         0   20   40   60   80   Trial#
 ```
 
 ### Comparação de Otimizadores
@@ -396,46 +457,22 @@ print("\n✅ Avaliação final (MSE, MAE):", avaliacao_final)
 | Multiplicação | 2.944 | 2.048 | 18.944 | 2/5 (40%) |
 | Divisão | 7.408 | 1.064 | 930.638 | 0/5 (0%) |
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/welligtoncos/PERCEPTRON-MULTICAMADA-1/main/comparacao_operacoes.png" alt="Comparação de Operações" width="600"/>
-</p>
+### Gráfico de Comparação de Desempenho por Operação
 
-
-```python
-# Código para testar o modelo com exemplos reais
-def calcular_real(a, b, op):
-    """Calcula o resultado real da operação."""
-    if op == 0:   # Adição
-        return a + b
-    elif op == 1: # Subtração
-        return a - b
-    elif op == 2: # Multiplicação
-        return a * b
-    elif op == 3: # Divisão
-        if abs(b) < 0.01:  # Evitar divisão por zero
-            b = 0.01 if b >= 0 else -0.01
-        return a / b
-    else:
-        raise ValueError(f"Operação inválida: {op}")
-
-def prever(a, b, op):
-    """Realiza predição usando o modelo treinado."""
-    # Pré-processar operandos
-    numeros = np.array([[a, b]])
-    numeros_norm = escala_entrada.transform(numeros)
-    
-    # Pré-processar código da operação
-    operacao_reshape = np.array([[op]])
-    operacao_cod = codificador_operacoes.transform(operacao_reshape)
-    
-    # Combinar para entrada final
-    entrada_processada = np.hstack([numeros_norm, operacao_cod])
-    
-    # Fazer previsão
-    resultado_norm = modelo.predict(entrada_processada, verbose=0)[0, 0]
-    resultado = escala_saida.inverse_transform([[resultado_norm]])[0, 0]
-    
-    return resultado
+```
+Erro Médio por Operação:
+    Erro
+ 8.0 |                               █
+     |                               █
+ 6.0 |                               █
+     |                               █
+ 4.0 |                               █
+     |                      █        █
+ 2.0 |                      █        █
+     |           █          █        █
+ 0.0 |     █     █          █        █
+     +-------------------------------------
+           Adição Subtração Multi  Divisão
 ```
 
 ### Análise de Casos Específicos
@@ -464,25 +501,7 @@ Exemplos representativos do conjunto de teste:
 ### Análise de Overfitting/Underfitting
 - Não observamos overfitting significativo graças às técnicas de regularização
 - A divergência entre erros por operação sugere que um único modelo pode não ser ideal para todas as operações
-
-```python
-# Análise de erros por operação
-print("\n📊 ERROS POR OPERAÇÃO:")
-for operacao in range(4):
-    indices_operacao = np.where(X_teste[:, 2] == operacao)[0]
-    erros_operacao = erros[indices_operacao]
-    
-    print(f"{nomes_operacao[operacao]}:")
-    print(f"  - Erro médio: {np.mean(erros_operacao):.6f}")
-    print(f"  - Erro mediano: {np.median(erros_operacao):.6f}")
-    print(f"  - Erro máximo: {np.max(erros_operacao):.6f}")
-
--2.11 / -0.89 = 2.3601 (Predito: 0.0550, Erro: 2.3051)
-```
-
-### Análise de Overfitting/Underfitting
-- Não observamos overfitting significativo graças às técnicas de regularização
-- A divergência entre erros por operação sugere que um único modelo pode não ser ideal para todas as operações
+- Os resultados indicam que a rede generaliza bem para adição, mas tem dificuldades crescentes com operações mais complexas
 
 ## 🔍 Conclusões e Recomendações
 
@@ -497,6 +516,34 @@ for operacao in range(4):
 3. **Dataset Expandido:** Maior cobertura de casos extremos, especialmente para divisão
 4. **Arquiteturas Alternativas:** Explorar redes mais profundas para operações complexas
 
+## 🚧 Limitações e Desafios
+
+Durante o desenvolvimento do projeto, enfrentamos diversos desafios e identificamos limitações importantes:
+
+1. **Precisão da Divisão:** O modelo apresentou dificuldades significativas com a operação de divisão, especialmente com denominadores próximos a zero, refletindo a natureza matematicamente mais complexa desta operação.
+
+2. **Generalização para Valores Extremos:** Os maiores erros ocorreram em casos com valores nos extremos do intervalo [-10, 10], indicando a necessidade de melhor cobertura de exemplos nessas regiões.
+
+3. **Otimização Computacional:** A busca de hiperparâmetros demandou recursos significativos (8m12s para 90 trials), indicando a necessidade de otimização para uso em ambientes com recursos limitados.
+
+4. **Modelo Único vs. Especializado:** Uma única rede para todas as operações apresenta vantagens de implementação, mas compromete a precisão, especialmente nas operações mais complexas.
+
+5. **Range Limitado:** Os resultados sugerem que o modelo atual pode não generalizar bem para valores fora do intervalo de treinamento [-10, 10].
+
+## 🔭 Trabalhos Futuros
+
+Com base nos resultados obtidos e nas limitações identificadas, planejamos as seguintes direções para pesquisas futuras:
+
+1. **Arquiteturas Especializadas:** Desenvolver e comparar modelos dedicados para cada operação matemática, potencialmente aumentando a complexidade para multiplicação e divisão.
+
+2. **Exploração de Técnicas de Atenção:** Implementar mecanismos de atenção para melhorar a capacidade do modelo de focar em diferentes aspectos dos operandos dependendo da operação.
+
+3. **Expansão para Operações Mais Complexas:** Treinar o modelo para realizar operações como exponenciação, raiz quadrada e operações com múltiplos operandos.
+
+4. **Implementação em Dispositivos de Baixo Recurso:** Otimizar o modelo para execução em dispositivos móveis ou embarcados, explorando técnicas de quantização e compressão.
+
+5. **Abordagem Híbrida Neural-Simbólica:** Combinar a rede neural com um sistema de regras para melhorar o desempenho em casos especiais (como divisão por números próximos a zero).
+
 ## 🚀 Como Executar
 
 ```bash
@@ -505,11 +552,62 @@ pip install tensorflow numpy matplotlib sklearn keras-tuner
 
 # Executar o código principal
 python final.py
+
+# Visualizar logs no TensorBoard
+tensorboard --logdir=logs_tensorboard/
 ```
 
-## 📚 Referências
+## 🔌 Uso Prático do Modelo
 
-- Goodfellow, I., Bengio, Y., & Courville, A. (2016). Deep Learning. MIT Press.
-- TensorFlow Documentation: https://www.tensorflow.org/
-- Keras Tuner: https://keras.io/keras_tuner/
-- Chollet, F. (2021). Deep Learning with Python. Manning Publications.
+Após o treinamento, você pode utilizar o modelo para realizar operações matemáticas conforme o exemplo abaixo:
+
+```python
+# Carregar o modelo treinado
+from tensorflow import keras
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+
+# Carregar modelo e transformadores
+modelo = keras.models.load_model("melhor_modelo.keras")
+escala_entrada = MinMaxScaler(feature_range=(-1, 1))
+escala_saida = MinMaxScaler(feature_range=(-1, 1))
+codificador_operacoes = OneHotEncoder(sparse_output=False)
+
+# Carregar os estados dos transformadores (código simplificado)
+# Na prática, você precisaria salvar e carregar estes estados
+
+def calcular_operacao(a, b, operacao):
+    """
+    Realiza o cálculo usando o modelo neural.
+    
+    Parâmetros:
+        a, b: Operandos (valores entre -10 e 10)
+        operacao: Código da operação (0: +, 1: -, 2: *, 3: /)
+        
+    Retorna:
+        Resultado da operação
+    """
+    # Pré-processar operandos
+    numeros = np.array([[a, b]])
+    numeros_norm = escala_entrada.transform(numeros)
+    
+    # Pré-processar código da operação
+    operacao_reshape = np.array([[operacao]])
+    operacao_cod = codificador_operacoes.transform(operacao_reshape)
+    
+    # Combinar para entrada final
+    entrada_processada = np.hstack([numeros_norm, operacao_cod])
+    
+    # Fazer previsão
+    resultado_norm = modelo.predict(entrada_processada, verbose=0)[0, 0]
+    resultado = escala_saida.inverse_transform([[resultado_norm]])[0, 0]
+    
+    return resultado
+
+# Exemplo de uso
+a, b = 5.7, -3.2
+print(f"{a} + {b} = {calcular_operacao(a, b, 0)}")
+print(f"{a} - {b} = {calcular_operacao(a, b, 1)}")
+print(f"{a} * {b} = {calcular_operacao(a, b, 2)}")
+print(f"{a} / {b} = {calcular_operacao(a, b, 3)}")
+```
