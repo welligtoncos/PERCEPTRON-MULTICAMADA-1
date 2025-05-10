@@ -114,8 +114,8 @@ Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE.md](L
 ## 👥 Autores
 
 - **Welligton costa dos santos** - *Desenvolvimento e Pesquisa* - [Seu GitHub](https://github.com/seu-usuario)
-- **Welligton costa dos santos** - *Desenvolvimento e Pesquisa* - [Seu GitHub](https://github.com/seu-usuario)
-- **Welligton costa dos santos** - *Desenvolvimento e Pesquisa* - [Seu GitHub](https://github.com/seu-usuario)
+- **Janderson Sebastião do Carmo Rocha - 2020101157** 
+- **Bruno Thiago Ferreira Lins - 2017102980**
 
 ## 🙏 Agradecimentos
 
