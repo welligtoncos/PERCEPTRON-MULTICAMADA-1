@@ -471,7 +471,7 @@ for operacao in range(4):
     print(f"  - Erro médio: {np.mean(erros_operacao):.6f}")
     print(f"  - Erro mediano: {np.median(erros_operacao):.6f}")
     print(f"  - Erro máximo: {np.max(erros_operacao):.6f}")
-```
+
 -2.11 / -0.89 = 2.3601 (Predito: 0.0550, Erro: 2.3051)
 ```
 
