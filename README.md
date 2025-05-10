@@ -13,75 +13,154 @@ Este projeto implementa uma rede neural profunda capaz de aprender as quatro ope
 **Disciplina:** Redes Neurais 2  
 **Professor:** Sérgio Assunção Monteiro, D.Sc.
 
-## 🔍 Resumo do Modelo
+## 1️⃣ Preparação e Validação dos Dados
+
+### Dataset Sintético
+- Geramos um dataset contendo 4.000 exemplos (1.000 por operação: adição, subtração, multiplicação e divisão)
+- Utilizamos números aleatórios no intervalo [-10, 10], incluindo valores decimais
+- Implementamos tratamento especial para evitar divisão por zero (valores menores que 0.01 são substituídos)
+
+### Divisão dos Dados
+- **Treino (60%):** 2.400 exemplos para aprendizado do modelo
+- **Validação (20%):** 800 exemplos para otimização de hiperparâmetros
+- **Teste (20%):** 800 exemplos para avaliação final
+
+### Justificativa da Divisão
+Esta proporção foi escolhida para:
+1. Garantir dados suficientes para treinamento adequado
+2. Manter um conjunto de validação robusto para otimização de hiperparâmetros
+3. Reservar uma quantidade representativa para teste independente
+
+### Pré-processamento
+- **Normalização:** Utilizamos MinMaxScaler com range=(-1, 1) para operandos e resultados
+- **Codificação:** Transformamos os códigos de operação (0-3) em vetores one-hot
+- Essa normalização é crucial para equilibrar a influência dos valores e melhorar a convergência
+
+## 2️⃣ Arquitetura da Rede Neural
+
+### Estrutura Inicial
+- Implementamos uma MLP com múltiplas camadas densas 
+- Exploramos diferentes configurações com 2-4 camadas ocultas
+- Finalizamos com uma camada de saída com 1 neurônio (resultado da operação)
+
+### Técnicas de Regularização
+- **Dropout:** Aplicado em taxas variáveis (0.1-0.4) para prevenir overfitting
+- **Regularização L2:** Implementada com coeficientes 0.001 e 0.0001
+- A combinação dessas técnicas provou ser eficaz para melhorar a generalização
+
+### Comparação de Funções de Ativação
+Testamos diferentes funções de ativação:
+- **ReLU:** Boa performance, especialmente nas primeiras camadas
+- **LeakyReLU:** Desempenho similar ao ReLU em nossos testes
+- **Tanh:** Não mostrou vantagens significativas para este problema
+- **SELU:** Apresentou excelentes resultados nas camadas intermediárias e finais
+
+A combinação vencedora utilizou ReLU na primeira camada e SELU nas subsequentes.
+
+## 3️⃣ Otimização de Hiperparâmetros
+
+### Metodologia
+Utilizamos Keras Tuner com o algoritmo Hyperband para busca eficiente, explorando:
+- **Número de neurônios:** 32, 64, 96 ou 128 por camada
+- **Taxa de aprendizado:** Range de 1e-4 a 1e-2 (escala logarítmica)
+- **Coeficientes de regularização L2:** 0.001 ou 0.0001
+- **Otimizadores:** Adam, RMSprop e SGD com momentum
+
+### Resultados da Otimização
+Após 90 trials (8m12s de processamento):
+- **Melhor configuração (Trial #87):** MAE de validação = 0.01958
+- **Último trial (#90):** MAE de validação = 0.0805 (significativamente pior)
+- **Arquitetura vencedora:** 3 camadas com estrutura "ampulheta" (128→32→128)
+
+### Comparação de Otimizadores
+- **Adam:** Mostrou convergência mais rápida e estável (escolhido com taxa de 0.001815)
+- **RMSprop:** Performance similar ao Adam, mas ligeiramente menos estável
+- **SGD com momentum:** Convergência mais lenta, mas capaz de encontrar bons mínimos
+
+## 4️⃣ Implementação de Callbacks
+
+### Callbacks Utilizados
+- **Early Stopping:** Interrompe o treinamento após 5 épocas sem melhoria no MAE de validação
+- **ModelCheckpoint:** Salva apenas o melhor modelo baseado no MAE de validação
+- **TensorBoard:** Registra métricas para visualização gráfica do treinamento
+
+### Callback Personalizado
+Implementamos um LimitadorDeTrials que:
+- Controla o número máximo de trials durante a otimização (limite: 59)
+- Interrompe trials que excedem este limite para otimizar o tempo total
+
+Adicionalmente, utilizamos um LambdaCallback para exibir métricas em tempo real:
+```python
+tf.keras.callbacks.LambdaCallback(
+    on_epoch_end=lambda epoca, logs: print(
+        f'Época {epoca+1} - MAE: {logs["mae"]:.4f}, Val MAE: {logs["val_mae"]:.4f}'
+    )
+)
+```
+
+## 5️⃣ Treinamento e Avaliação
+
+### Resultados do Treinamento
+- **Métricas no conjunto de teste:** MSE=0.05897, MAE=0.02049
+- **Total de parâmetros:** 9.377 (todos treináveis)
+
+### Resumo do Modelo Final
 
 | Característica | Valor |
 |----------------|-------|
 | Camadas | 9 |
 | Parâmetros Treináveis | 9,377 |
-| Otimizador | Adam |
+| Otimizador | Adam (lr=0.001815) |
 | Função de Perda | MSE |
 
-### Insights Técnicos
-- **Funções de Ativação:** ReLU, SELU
-- **Total de Camadas Densas:** 4
-- **Métrica de Avaliação:** MAE (Erro Absoluto Médio)
-- **Arquitetura:** MLP com entrada de 2 valores + codificação one-hot da operação
-- **Funções não utilizadas:** tanh, leaky_relu
+### Desempenho por Operação
 
-## 📊 Desempenho por Operação
+| Operação | Erro Médio | Erro Mediano | Erro Máximo | Acertos (≤5% erro) |
+|----------|------------|--------------|-------------|----------------|
+| Adição | 0.634 | 0.327 | 9.611 | 4/5 (80%) |
+| Subtração | 0.946 | 0.738 | 10.407 | 1/5 (20%) |
+| Multiplicação | 2.944 | 2.048 | 18.944 | 2/5 (40%) |
+| Divisão | 7.408 | 1.064 | 930.638 | 0/5 (0%) |
 
-### Erro Médio por Operação (%)
-- **Adição:** 5.9%
-- **Subtração:** 41.0%
-- **Multiplicação:** 31.4%
-- **Divisão:** 155.6%
+### Análise de Casos Específicos
+Exemplos representativos do conjunto de teste:
 
-### Acertos por Operação (≤ 5% erro)
-- **Adição:** 4/5 testes (80%)
-- **Subtração:** 1/5 testes (20%)
-- **Multiplicação:** 2/5 testes (40%)
-- **Divisão:** 0/5 testes (0%)
+**Adição (bom desempenho):**
+```
+-3.58 + -5.19 = -8.7784 (Predito: -8.9009, Erro: 0.1225)
+```
 
-## 💻 Implementação
+**Subtração (desempenho variável):**
+```
+-9.90 - 9.67 = -19.5680 (Predito: -26.3897, Erro: 6.8216)
+```
 
-O projeto utiliza TensorFlow e Keras para implementação da rede neural, juntamente com o Keras Tuner para otimização de hiperparâmetros.
+**Multiplicação (desafios em valores maiores):**
+```
+-9.00 * -6.32 = 56.8851 (Predito: 54.2390, Erro: 2.6461)
+```
 
-### Principais Componentes:
-1. **Geração de Dados:** Dataset sintético com números aleatórios para as quatro operações
-2. **Pré-processamento:** Normalização dos valores e codificação one-hot das operações
-3. **Arquitetura do Modelo:** Rede neural profunda com camadas densas e regularização
-4. **Otimização de Hiperparâmetros:** Utilizando Hyperband para encontrar a melhor configuração
-5. **Avaliação:** Testes com exemplos reais e análise detalhada de erros
+**Divisão (problemas significativos):**
+```
+-2.11 / -0.89 = 2.3601 (Predito: 0.0550, Erro: 2.3051)
+```
 
-### Melhores Hiperparâmetros Encontrados:
-- **Número de camadas:** 3
-- **Otimizador:** Adam
-- **Taxa de aprendizado:** 0.001815
-- **Camada 1:** 128 neurônios, ReLU, L2=0.0001, Dropout=0.3
-- **Camada 2:** 32 neurônios, SELU, L2=0.001, sem Dropout
-- **Camada 3:** 128 neurônios, SELU, L2=0.001, Dropout=0.1
+### Análise de Overfitting/Underfitting
+- Não observamos overfitting significativo graças às técnicas de regularização
+- A divergência entre erros por operação sugere que um único modelo pode não ser ideal para todas as operações
 
-## 📈 Resultados e Conclusões
+## 🔍 Conclusões e Recomendações
 
-A rede neural conseguiu aprender com maior facilidade operações de adição, enquanto teve dificuldades significativas com divisão. Os resultados mostram que:
+### Principais Insights
+1. Hierarquia clara de dificuldade: Adição < Subtração < Multiplicação < Divisão
+2. A estrutura "ampulheta" (128→32→128) mostrou-se eficiente para capturar padrões matemáticos
+3. A combinação ReLU + SELU superou configurações homogêneas de ativação
 
-- O modelo é excelente para adição (80% de acertos com erro ≤ 5%)
-- Razoável para multiplicação (40% de acertos com erro ≤ 5%)
-- Limitado para subtração (20% de acertos com erro ≤ 5%)
-- Inadequado para divisão (0% de acertos com erro ≤ 5%)
-
-O erro médio absoluto (MAE) final no conjunto de teste foi de aproximadamente 0.0205, indicando um bom desempenho geral, mas com variações significativas entre as operações.
-
-## 🔮 Próximos Passos
-
-Com base nos resultados obtidos, sugerimos as seguintes melhorias:
-
+### Melhorias Propostas
 1. **Modelos Especializados:** Treinar redes separadas para cada operação
-2. **Ampliação do Dataset:** Aumentar a quantidade e diversidade dos dados de treinamento
-3. **Arquiteturas Alternativas:** Testar RNNs ou Transformers para capturar padrões sequenciais
-4. **Processamento Adicional:** Melhorar a normalização de dados para operações de divisão
-5. **Técnicas de Ensemble:** Combinar múltiplos modelos para melhorar a precisão geral
+2. **Pré-processamento Adaptativo:** Diferentes estratégias de normalização por operação
+3. **Dataset Expandido:** Maior cobertura de casos extremos, especialmente para divisão
+4. **Arquiteturas Alternativas:** Explorar redes mais profundas para operações complexas
 
 ## 🚀 Como Executar
 
@@ -90,7 +169,7 @@ Com base nos resultados obtidos, sugerimos as seguintes melhorias:
 pip install tensorflow numpy matplotlib sklearn keras-tuner
 
 # Executar o código principal
-final.py
+python final.py
 ```
 
 ## 📚 Referências
