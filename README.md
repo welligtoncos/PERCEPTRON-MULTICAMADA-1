@@ -396,6 +396,11 @@ print("\n✅ Avaliação final (MSE, MAE):", avaliacao_final)
 | Multiplicação | 2.944 | 2.048 | 18.944 | 2/5 (40%) |
 | Divisão | 7.408 | 1.064 | 930.638 | 0/5 (0%) |
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/welligtoncos/PERCEPTRON-MULTICAMADA-1/main/comparacao_operacoes.png" alt="Comparação de Operações" width="600"/>
+</p>
+
+
 ```python
 # Código para testar o modelo com exemplos reais
 def calcular_real(a, b, op):
@@ -499,7 +504,7 @@ for operacao in range(4):
 pip install tensorflow numpy matplotlib sklearn keras-tuner
 
 # Executar o código principal
-python calculadora_neural.py
+python final.py
 ```
 
 ## 📚 Referências
